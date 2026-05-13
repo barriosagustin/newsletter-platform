@@ -1,0 +1,27 @@
+# Node
+node_modules
+dist
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Env
+.env
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode
+
+# .NET
+bin/
+obj/
+
+# Docker
+postgres_data/
+
+# Coverage
+coverage/
