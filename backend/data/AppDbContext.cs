@@ -10,5 +10,27 @@ public class AppDbContext : DbContext
     {
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserTopic>()
+            .HasKey(ut => new { ut.UserId, ut.TopicId });
+
+        modelBuilder.Entity<UserTopic>()
+            .HasOne(ut => ut.User)
+            .WithMany()
+            .HasForeignKey(ut => ut.UserId);
+
+        modelBuilder.Entity<UserTopic>()
+            .HasOne(ut => ut.Topic)
+            .WithMany()
+            .HasForeignKey(ut => ut.TopicId);
+    }
+
     public DbSet<User> Users => Set<User>();
+
+    public DbSet<Topic> Topics { get; set; }
+
+    public DbSet<UserTopic> UserTopics { get; set; }
+
+    public DbSet<NewsArticle> NewsArticles { get; set; }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Entities;
 using backend.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace backend.Controllers;
 
@@ -31,5 +32,33 @@ public class UsersController : ControllerBase
         var createdUser = await _userService.CreateUserAsync(user);
 
         return Ok(createdUser);
+    }
+
+    /// <summary>
+    /// Subscribes the authenticated user to a topic.
+    /// </summary>
+
+    [HttpPost("topics/{topicId}")]
+    public async Task<IActionResult> SubscribeToTopic(int topicId)
+    {
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
+        await _userService.SubscribeToTopicAsync(userId, topicId);
+
+        return Ok();
+    }
+
+    [HttpGet("my-topics")]
+    public async Task<ActionResult<IEnumerable<Topic>>> GetMyTopics()
+    {
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
+        var topics = await _userService.GetUserTopicsAsync(userId);
+
+        return Ok(topics);
     }
 }

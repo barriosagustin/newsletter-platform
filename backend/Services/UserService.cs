@@ -27,4 +27,35 @@ public class UserService : IUserService
 
         return user;
     }
+
+    public async Task SubscribeToTopicAsync(int userId, int topicId)
+    {
+        var existingSubscription = await _context.UserTopics
+            .FirstOrDefaultAsync(
+                x => x.UserId == userId && x.TopicId == topicId
+            );
+
+        if (existingSubscription != null)
+        {
+            return;
+        }
+
+        var userTopic = new UserTopic
+        {
+            UserId = userId,
+            TopicId = topicId
+        };
+
+        _context.UserTopics.Add(userTopic);
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<Topic>> GetUserTopicsAsync(int userId)
+    {
+        return await _context.UserTopics
+            .Where(x => x.UserId == userId)
+            .Select(x => x.Topic)
+            .ToListAsync();
+    }
 }
