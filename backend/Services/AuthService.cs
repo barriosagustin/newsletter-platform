@@ -9,10 +9,14 @@ namespace backend.Services;
 public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
+    private readonly ITokenService _tokenService;
 
-    public AuthService(AppDbContext context)
+    public AuthService(
+      AppDbContext context,
+      ITokenService tokenService)
     {
         _context = context;
+        _tokenService = tokenService;
     }
 
     public async Task<string> RegisterAsync(RegisterDto dto)
@@ -38,7 +42,7 @@ public class AuthService : IAuthService
 
         await _context.SaveChangesAsync();
 
-        return "User registered successfully";
+        return _tokenService.CreateToken(user);
     }
 
     public async Task<string> LoginAsync(LoginDto dto)
@@ -61,6 +65,6 @@ public class AuthService : IAuthService
             throw new Exception("Invalid credentials");
         }
 
-        return "Login successful";
+        return _tokenService.CreateToken(user);
     }
 }
