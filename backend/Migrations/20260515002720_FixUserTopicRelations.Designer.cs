@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using backend.Data;
@@ -11,9 +12,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260515002720_FixUserTopicRelations")]
+    partial class FixUserTopicRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,9 +123,19 @@ namespace backend.Migrations
                     b.Property<int>("TopicId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("TopicId1")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UserId1")
+                        .HasColumnType("integer");
+
                     b.HasKey("UserId", "TopicId");
 
                     b.HasIndex("TopicId");
+
+                    b.HasIndex("TopicId1");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("UserTopics");
                 });
@@ -141,16 +154,24 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Entities.UserTopic", b =>
                 {
                     b.HasOne("backend.Entities.Topic", "Topic")
-                        .WithMany("UserTopics")
+                        .WithMany()
                         .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Entities.User", "User")
+                    b.HasOne("backend.Entities.Topic", null)
                         .WithMany("UserTopics")
+                        .HasForeignKey("TopicId1");
+
+                    b.HasOne("backend.Entities.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("backend.Entities.User", null)
+                        .WithMany("UserTopics")
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Topic");
 

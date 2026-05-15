@@ -16,15 +16,19 @@ public class NewsController : ControllerBase
 
     private readonly EmailService _emailService;
 
+    private readonly NewsletterService _newsletterService;
+
 
     public NewsController(
      INewsService newsService,
      NewsIngestionService ingestionService,
-     EmailService emailService)
+     EmailService emailService,
+     NewsletterService newsletterService)
     {
         _newsService = newsService;
         _ingestionService = ingestionService;
         _emailService = emailService;
+        _newsletterService = newsletterService;
     }
 
     [HttpGet]
@@ -62,5 +66,13 @@ public class NewsController : ControllerBase
         );
 
         return Ok("Email sent");
+    }
+
+    [HttpPost("send-newsletters")]
+    public async Task<IActionResult> SendNewsletters()
+    {
+        await _newsletterService.SendWeeklyNewslettersAsync();
+
+        return Ok("Newsletters sent");
     }
 }

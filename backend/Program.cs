@@ -41,6 +41,7 @@ builder.Services.AddScoped<INewsService, NewsService>();
 builder.Services.AddScoped<NewsIngestionService>();
 builder.Services.AddHostedService<NewsBackgroundService>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<NewsletterService>();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

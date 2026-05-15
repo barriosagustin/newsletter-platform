@@ -13,4 +13,6 @@ public class User
     public string Role { get; set; } = "User";
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public List<UserTopic> UserTopics { get; set; } = [];
 }

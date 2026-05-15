@@ -17,12 +17,12 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<UserTopic>()
             .HasOne(ut => ut.User)
-            .WithMany()
+            .WithMany(u => u.UserTopics)
             .HasForeignKey(ut => ut.UserId);
 
         modelBuilder.Entity<UserTopic>()
             .HasOne(ut => ut.Topic)
-            .WithMany()
+            .WithMany(t => t.UserTopics)
             .HasForeignKey(ut => ut.TopicId);
     }
 
