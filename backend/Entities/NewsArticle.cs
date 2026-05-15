@@ -17,4 +17,6 @@ public class NewsArticle
     public int TopicId { get; set; }
 
     public Topic? Topic { get; set; }
+
+    public string Summary { get; set; } = string.Empty;
 }

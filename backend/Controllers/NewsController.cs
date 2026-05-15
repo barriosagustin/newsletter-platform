@@ -14,13 +14,17 @@ public class NewsController : ControllerBase
     private readonly INewsService _newsService;
     private readonly NewsIngestionService _ingestionService;
 
+    private readonly EmailService _emailService;
+
 
     public NewsController(
-    INewsService newsService,
-    NewsIngestionService ingestionService)
+     INewsService newsService,
+     NewsIngestionService ingestionService,
+     EmailService emailService)
     {
         _newsService = newsService;
         _ingestionService = ingestionService;
+        _emailService = emailService;
     }
 
     [HttpGet]
@@ -46,5 +50,17 @@ public class NewsController : ControllerBase
         await _ingestionService.FetchTechNewsAsync();
 
         return Ok("News fetched successfully");
+    }
+
+    [HttpPost("send-test-email")]
+    public async Task<IActionResult> SendTestEmail()
+    {
+        await _emailService.SendEmailAsync(
+            "agusab2000@gmail.com",
+            "Newsletter Test 🚀",
+            "<h1>Hello from your SaaS 😄</h1>"
+        );
+
+        return Ok("Email sent");
     }
 }
