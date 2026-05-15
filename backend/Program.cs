@@ -2,15 +2,18 @@ using backend.Data;
 using Microsoft.EntityFrameworkCore;
 using backend.Interfaces;
 using backend.Services;
+using backend.Jobs;
 using backend.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Hangfire;
+using Hangfire.PostgreSql;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        "Host=localhost;Port=5432;Database=newsletterdb;Username=admin;Password=admin123"
-    )
+        builder.Configuration.GetConnectionString("DefaultConnection")
+)
 );
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("JwtSettings")
@@ -42,6 +45,7 @@ builder.Services.AddScoped<NewsIngestionService>();
 builder.Services.AddHostedService<NewsBackgroundService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<NewsletterService>();
+builder.Services.AddScoped<NewsJobs>();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -73,7 +77,26 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddHangfire(config =>
+    config.UsePostgreSqlStorage(options =>
+    {
+        options.UseNpgsqlConnection(
+            builder.Configuration.GetConnectionString("DefaultConnection")
+        );
+    })
+);
+
+builder.Services.AddHangfireServer();
+
 var app = builder.Build();
+
+app.UseHangfireDashboard("/hangfire");
+
+using (var scope = app.Services.CreateScope())
+{
+    var job = scope.ServiceProvider.GetRequiredService<NewsJobs>();
+    job.RegisterJobs();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
