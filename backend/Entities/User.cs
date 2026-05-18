@@ -15,4 +15,8 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public List<UserTopic> UserTopics { get; set; } = [];
+
+    public bool NewsletterEnabled { get; set; } = true;
+
+    public string NewsletterFrequency { get; set; } = "Weekly";
 }

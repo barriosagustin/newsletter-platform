@@ -3,6 +3,8 @@ using backend.Entities;
 using backend.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using backend.Data;
+using backend.DTOs;
 
 namespace backend.Controllers;
 
@@ -13,9 +15,15 @@ public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
 
-    public UsersController(IUserService userService)
+    private readonly AppDbContext _context;
+
+    public UsersController(
+    IUserService userService,
+    AppDbContext context
+)
     {
         _userService = userService;
+        _context = context;
     }
 
     [HttpGet]
@@ -60,5 +68,63 @@ public class UsersController : ControllerBase
         var topics = await _userService.GetUserTopicsAsync(userId);
 
         return Ok(topics);
+    }
+
+    [HttpGet("me")]
+    public IActionResult GetCurrentUser()
+    {
+        var userId = int.Parse(
+            User.FindFirst(
+                ClaimTypes.NameIdentifier
+            )!.Value
+        );
+
+        var user = _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new
+            {
+                u.Id,
+                u.Name,
+                u.Email,
+                u.Role,
+                u.NewsletterEnabled,
+                u.NewsletterFrequency
+            })
+            .FirstOrDefault();
+
+        return Ok(user);
+    }
+
+    [HttpPut("newsletter-settings")]
+    public async Task<IActionResult>
+        UpdateNewsletterSettings(
+            UpdateNewsletterSettingsDto dto
+        )
+    {
+        var userId = int.Parse(
+            User.FindFirst(
+                ClaimTypes.NameIdentifier
+            )!.Value
+        );
+
+        var user =
+            await _context.Users.FindAsync(
+                userId
+            );
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        user.NewsletterEnabled =
+            dto.NewsletterEnabled;
+
+        user.NewsletterFrequency =
+            dto.NewsletterFrequency;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(user);
     }
 }
