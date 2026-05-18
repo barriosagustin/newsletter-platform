@@ -1,20 +1,66 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { isAuthenticated } from "@/lib/auth";
+import { getTopics } from "@/services/topic-service";
+import { Topic } from "@/types/topic";
+import { selectTopic } from "@/services/user-topic-service";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // Verificar auth
   useEffect(() => {
-    const authenticated = isAuthenticated();
-
-    if (!authenticated) {
+    if (!isAuthenticated()) {
       router.push("/login");
     }
   }, [router]);
+
+  // Cargar datos
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTopics() {
+      try {
+        const data = await getTopics();
+        if (!cancelled) {
+          setTopics(data);
+        }
+      } catch (error) {
+        console.error("Error loading topics:", error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadTopics();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
+
+  async function handleSelectTopic(topicId: number) {
+    try {
+      await selectTopic(topicId);
+
+      alert("Topic selected 😄");
+    } catch (error) {
+      console.error(error);
+
+      alert("Topic already selected");
+    }
+  }
 
   return (
     <main className="min-h-screen bg-black text-white p-8">
@@ -22,40 +68,39 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-white/50">Dashboard</p>
-
-            <h1 className="text-5xl font-bold mt-2">Welcome back 😄</h1>
+            <h1 className="text-5xl font-bold mt-2">Your interests</h1>
           </div>
-
           <button
-            onClick={() => {
-              localStorage.removeItem("token");
-
-              router.push("/login");
-            }}
+            onClick={handleLogout}
             className="rounded-2xl border border-white/10 px-5 py-3 hover:bg-white/5 transition"
           >
             Logout
           </button>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm text-white/50">Active topics</p>
+        <div className="mt-12">
+          <h2 className="text-2xl font-semibold mb-6">
+            Choose your newsletter topics
+          </h2>
 
-            <h2 className="mt-3 text-4xl font-bold">0</h2>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm text-white/50">Articles this week</p>
-
-            <h2 className="mt-3 text-4xl font-bold">0</h2>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-sm text-white/50">Newsletters sent</p>
-
-            <h2 className="mt-3 text-4xl font-bold">0</h2>
-          </div>
+          {loading ? (
+            <p className="text-white/50">Loading...</p>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-3">
+              {topics.map((topic) => (
+                <div
+                  key={topic.id}
+                  onClick={() => handleSelectTopic(topic.id)}
+                  className="rounded-3xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition cursor-pointer"
+                >
+                  <h3 className="text-xl font-semibold">{topic.name}</h3>
+                  <p className="mt-2 text-sm text-white/50">
+                    Personalized weekly updates
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </main>
