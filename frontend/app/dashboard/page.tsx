@@ -5,12 +5,17 @@ import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 import { getTopics } from "@/services/topic-service";
 import { Topic } from "@/types/topic";
-import { selectTopic } from "@/services/user-topic-service";
+import {
+  selectTopic,
+  removeTopic,
+  getSelectedTopics,
+} from "@/services/user-topic-service";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTopics, setSelectedTopics] = useState<number[]>([]);
 
   // Verificar auth
   useEffect(() => {
@@ -25,9 +30,14 @@ export default function DashboardPage() {
 
     async function loadTopics() {
       try {
-        const data = await getTopics();
+        const [topicsData, selectedData] = await Promise.all([
+          getTopics(),
+          getSelectedTopics(),
+        ]);
         if (!cancelled) {
-          setTopics(data);
+          setTopics(topicsData);
+
+          setSelectedTopics(selectedData);
         }
       } catch (error) {
         console.error("Error loading topics:", error);
@@ -52,13 +62,21 @@ export default function DashboardPage() {
 
   async function handleSelectTopic(topicId: number) {
     try {
+      const isSelected = selectedTopics.includes(topicId);
+
+      if (isSelected) {
+        await removeTopic(topicId);
+
+        setSelectedTopics((prev) => prev.filter((id) => id !== topicId));
+
+        return;
+      }
+
       await selectTopic(topicId);
 
-      alert("Topic selected 😄");
+      setSelectedTopics((prev) => [...prev, topicId]);
     } catch (error) {
       console.error(error);
-
-      alert("Topic already selected");
     }
   }
 
@@ -91,7 +109,11 @@ export default function DashboardPage() {
                 <div
                   key={topic.id}
                   onClick={() => handleSelectTopic(topic.id)}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition cursor-pointer"
+                  className={`rounded-3xl border p-6 transition cursor-pointer ${
+                    selectedTopics.includes(topic.id)
+                      ? "border-green-500 bg-green-500/10"
+                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
                 >
                   <h3 className="text-xl font-semibold">{topic.name}</h3>
                   <p className="mt-2 text-sm text-white/50">
