@@ -88,12 +88,6 @@ export default function DashboardPage() {
             <p className="text-sm text-white/50">Dashboard</p>
             <h1 className="text-5xl font-bold mt-2">Your interests</h1>
           </div>
-          <button
-            onClick={handleLogout}
-            className="rounded-2xl border border-white/10 px-5 py-3 hover:bg-white/5 transition"
-          >
-            Logout
-          </button>
         </div>
 
         <div className="mt-12">
