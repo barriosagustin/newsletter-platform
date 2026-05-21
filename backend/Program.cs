@@ -105,6 +105,12 @@ var app = builder.Build();
 
 app.UseHangfireDashboard("/hangfire");
 
+RecurringJob.AddOrUpdate<NewsletterService>(
+    "weekly-newsletters",
+    service => service.SendWeeklyNewsletters(),
+    Cron.Weekly
+);
+
 using (var scope = app.Services.CreateScope())
 {
     var job = scope.ServiceProvider.GetRequiredService<NewsJobs>();

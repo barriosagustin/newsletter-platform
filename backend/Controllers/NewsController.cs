@@ -3,6 +3,7 @@ using backend.Interfaces;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using backend.Data;
 
 namespace backend.Controllers;
 
@@ -18,17 +19,23 @@ public class NewsController : ControllerBase
 
     private readonly NewsletterService _newsletterService;
 
+    private readonly AppDbContext _context;
+
+
 
     public NewsController(
      INewsService newsService,
      NewsIngestionService ingestionService,
      EmailService emailService,
-     NewsletterService newsletterService)
+     NewsletterService newsletterService,
+    AppDbContext context
+)
     {
         _newsService = newsService;
         _ingestionService = ingestionService;
         _emailService = emailService;
         _newsletterService = newsletterService;
+        _context = context;
     }
 
     [HttpGet]
@@ -37,6 +44,27 @@ public class NewsController : ControllerBase
         var news = await _newsService.GetAllAsync();
 
         return Ok(news);
+    }
+
+    [HttpGet("preview")]
+    public IActionResult Preview()
+    {
+        var articles = _context.NewsArticles
+            .OrderByDescending(
+                n => n.PublishedAt
+            )
+            .Take(6)
+            .Select(n => new
+            {
+                n.Id,
+                n.Title,
+                n.Source,
+                n.Url,
+                n.PublishedAt
+            })
+            .ToList();
+
+        return Ok(articles);
     }
 
     [HttpPost]
@@ -71,7 +99,7 @@ public class NewsController : ControllerBase
     [HttpPost("send-newsletters")]
     public async Task<IActionResult> SendNewsletters()
     {
-        await _newsletterService.SendWeeklyNewslettersAsync();
+        await _newsletterService.SendWeeklyNewsletters();
 
         return Ok("Newsletters sent");
     }
