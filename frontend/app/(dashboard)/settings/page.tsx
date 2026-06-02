@@ -107,8 +107,6 @@ export default function SettingsPage() {
               onChange={(e) => setNewsletterFrequency(e.target.value)}
               className="w-full rounded-2xl bg-black border border-white/10 px-4 py-3 outline-none"
             >
-              <option value="Daily">Daily</option>
-
               <option value="Weekly">Weekly</option>
 
               <option value="Monthly">Monthly</option>

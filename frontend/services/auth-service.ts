@@ -8,7 +8,7 @@ export async function login(data: LoginRequest): Promise<string> {
   return response.data;
 }
 
-export async function register(data: RegisterRequest) {
+export async function register(data: RegisterRequest): Promise<string> {
   const response = await api.post("/Auth/register", data);
 
   return response.data;
