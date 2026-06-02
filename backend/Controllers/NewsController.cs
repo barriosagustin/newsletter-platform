@@ -79,7 +79,7 @@ public class NewsController : ControllerBase
     [HttpPost("fetch")]
     public async Task<IActionResult> FetchNews()
     {
-        await _ingestionService.FetchTechNewsAsync();
+        await _ingestionService.FetchNewsAsync();
 
         return Ok("News fetched successfully");
     }

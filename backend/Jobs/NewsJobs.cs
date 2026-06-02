@@ -17,7 +17,9 @@ public class NewsJobs
         RecurringJob.AddOrUpdate(
             "fetch-news-job",
             () => Execute(),
-            Cron.Minutely
+            Cron.Weekly
+
+        //Cron.Minutely
         );
     }
 
@@ -28,7 +30,7 @@ public class NewsJobs
         var ingestion = scope.ServiceProvider
             .GetRequiredService<NewsIngestionService>();
 
-        await ingestion.FetchTechNewsAsync();
+        await ingestion.FetchNewsAsync();
 
         Console.WriteLine("Hangfire: news fetched 😄");
     }

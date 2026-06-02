@@ -24,7 +24,7 @@ public class NewsBackgroundService : BackgroundService
 
             Console.WriteLine("Fetching news...");
 
-            await ingestionService.FetchTechNewsAsync();
+            await ingestionService.FetchNewsAsync();
 
             Console.WriteLine("News fetched!");
 
