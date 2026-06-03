@@ -55,7 +55,6 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITopicService, TopicService>();
 builder.Services.AddScoped<INewsService, NewsService>();
 builder.Services.AddScoped<NewsIngestionService>();
-builder.Services.AddHostedService<NewsBackgroundService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<NewsletterService>();
 builder.Services.AddScoped<NewsJobs>();

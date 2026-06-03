@@ -49,20 +49,45 @@ public class NewsController : ControllerBase
     [HttpGet("preview")]
     public IActionResult Preview()
     {
-        var articles = _context.NewsArticles
-            .OrderByDescending(
-                n => n.PublishedAt
-            )
-            .Take(6)
-            .Select(n => new
-            {
-                n.Id,
-                n.Title,
-                n.Source,
-                n.Url,
-                n.PublishedAt
-            })
-            .ToList();
+        var userIdClaim =
+            User.FindFirst(
+                System.Security.Claims.ClaimTypes.NameIdentifier
+            )?.Value;
+
+        if (userIdClaim == null)
+        {
+            return Unauthorized();
+        }
+
+        var userId = int.Parse(userIdClaim);
+
+        var topicIds =
+            _context.UserTopics
+                .Where(ut => ut.UserId == userId)
+                .Select(ut => ut.TopicId)
+                .ToList();
+
+        var articles =
+            _context.NewsArticles
+                .Where(n =>
+                    topicIds.Contains(
+                        n.TopicId
+                    )
+                )
+                .OrderByDescending(
+                    n => n.PublishedAt
+                )
+                .Take(10)
+                .Select(n => new
+                {
+                    n.Id,
+                    n.Title,
+                    n.Source,
+                    n.Url,
+                    n.PublishedAt,
+                    n.TopicId
+                })
+                .ToList();
 
         return Ok(articles);
     }
