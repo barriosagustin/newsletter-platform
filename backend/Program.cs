@@ -44,8 +44,7 @@ builder.Services.AddCors(options =>
             policy
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials()
-                .WithOrigins("http://localhost:3000");
+                .AllowAnyOrigin();
         });
 });
 builder.Services.AddControllers();
@@ -102,7 +101,10 @@ builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
-app.UseHangfireDashboard("/hangfire");
+if (app.Environment.IsDevelopment())
+{
+    app.UseHangfireDashboard("/hangfire");
+}
 
 RecurringJob.AddOrUpdate<NewsletterService>(
     "weekly-newsletters",
