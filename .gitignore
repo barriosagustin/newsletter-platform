@@ -9,6 +9,7 @@ npm-debug.log*
 
 # Env
 .env
+.env.local
 
 # macOS
 .DS_Store
@@ -25,3 +26,9 @@ postgres_data/
 
 # Coverage
 coverage/
+
+# Next.js
+.next/
+
+# Local development secrets
+appsettings.Development.json
