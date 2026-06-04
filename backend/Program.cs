@@ -106,18 +106,20 @@ if (app.Environment.IsDevelopment())
     app.UseHangfireDashboard("/hangfire");
 }
 
-RecurringJob.AddOrUpdate<NewsletterService>(
-    "weekly-newsletters",
-    service => service.SendWeeklyNewsletters(),
-//Cron.Minutely
-Cron.Weekly
-);
+// TODO: Re-enable after Render deployment
 
-using (var scope = app.Services.CreateScope())
-{
-    var job = scope.ServiceProvider.GetRequiredService<NewsJobs>();
-    job.RegisterJobs();
-}
+// RecurringJob.AddOrUpdate<NewsletterService>(
+//     "weekly-newsletters",
+//     service => service.SendWeeklyNewsletters(),
+// //Cron.Minutely
+// Cron.Weekly
+// );
+
+// using (var scope = app.Services.CreateScope())
+// {
+//     var job = scope.ServiceProvider.GetRequiredService<NewsJobs>();
+//     job.RegisterJobs();
+// }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
